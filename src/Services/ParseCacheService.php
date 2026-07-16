@@ -1,6 +1,8 @@
 <?php
 namespace Flyaction\ThinkRemoveWater\Services;
 
+use Flyaction\ThinkRemoveWater\App;
+
 class ParseCacheService
 {
     /** 解析逻辑变更时递增，使旧缓存失效 */
@@ -9,7 +11,7 @@ class ParseCacheService
     {
         static $cfg = null;
         if ($cfg === null) {
-            $app = require __DIR__ . '/../../config/app.php';
+            $app = App::getAppConfig();
             $cfg = $app['parse_cache'] ?? ['enabled' => true, 'ttl' => 900];
         }
         return $cfg;

@@ -2,6 +2,7 @@
 namespace Flyaction\ThinkRemoveWater\Services;
 
 use Flyaction\ThinkRemoveWater\Core\HttpClient;
+use Flyaction\ThinkRemoveWater\App;
 
 class MediaProxyService
 {
@@ -18,7 +19,7 @@ class MediaProxyService
 
     public static function isDirectDownloadPlatform(string $platform): bool
     {
-        $config = require __DIR__ . '/../../config/app.php';
+        $config = App::getAppConfig();
         $list = $config['direct_download_platforms']
             ?? $config['direct_media_platforms']
             ?? [];

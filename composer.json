@@ -7,11 +7,25 @@
             "Flyaction\\ThinkRemoveWater\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Flyaction\\ThinkRemoveWater\\Tests\\": "tests/"
+        }
+    },
     "authors": [
         {
             "name": "action",
             "email": "xingdong1117@126.com"
         }
     ],
-    "require": {}
+    "require": {
+        "php": ">=7.4"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.0"
+    },
+    "minimum-stability": "stable",
+    "scripts": {
+        "test": "phpunit"
+    }
 }

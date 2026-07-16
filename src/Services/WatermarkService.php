@@ -1,7 +1,6 @@
 <?php
 namespace Flyaction\ThinkRemoveWater\Services;
 
-use Flyaction\ThinkRemoveWater\Core\Database;
 use Flyaction\ThinkRemoveWater\Parsers\ParserFactory;
 
 class WatermarkService
@@ -37,9 +36,6 @@ class WatermarkService
         } catch (\Exception $e) {
             $error = $e->getMessage();
             throw $e;
-        } finally {
-            $responseTime = (int) ((microtime(true) - $startTime) * 1000);
-            self::logRequest($apiKeyId, $platform, $url, $status, $error, $responseTime);
         }
 
         return self::formatResult($result, $platform, $fromCache);
@@ -154,84 +150,4 @@ class WatermarkService
         return $scheme . '://' . $host;
     }
 
-    private static function logRequest(
-        ?int $apiKeyId,
-        string $platform,
-        string $url,
-        string $status,
-        ?string $error,
-        int $responseTime
-    ): void {
-        try {
-            $db = Database::getInstance();
-            $userId = null;
-            if ($apiKeyId) {
-                $stmt = $db->prepare('SELECT user_id FROM api_keys WHERE id = ?');
-                $stmt->execute([$apiKeyId]);
-                $userId = $stmt->fetchColumn() ?: null;
-            }
-
-            $stmt = $db->prepare(
-                'INSERT INTO request_logs (api_key_id, user_id, platform, source_url, ip_address, user_agent, status, error_message, response_time)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
-            );
-            $stmt->execute([
-                $apiKeyId,
-                $userId,
-                $platform,
-                $url,
-                $_SERVER['REMOTE_ADDR'] ?? null,
-                substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 500),
-                $status,
-                $error,
-                $responseTime,
-            ]);
-
-            if ($apiKeyId && $status === 'success') {
-                $db->prepare('UPDATE api_keys SET total_requests = total_requests + 1 WHERE id = ?')
-                   ->execute([$apiKeyId]);
-            }
-        } catch (\Exception $e) {
-            // 日志记录失败不影响主流程
-        }
-    }
-
-    public static function getPlatforms(): array
-    {
-        try {
-            $db = Database::getInstance();
-            $stmt = $db->query('SELECT code, name, icon, status FROM platforms WHERE status = 1 ORDER BY sort_order');
-            $rows = $stmt->fetchAll();
-            if (!empty($rows)) {
-                return $rows;
-            }
-        } catch (\Exception $e) {
-            // fallback
-        }
-        return ParserFactory::getPlatformMeta();
-    }
-
-    public static function getStats(?int $apiKeyId = null): array
-    {
-        $db = Database::getInstance();
-
-        if ($apiKeyId) {
-            $stmt = $db->prepare(
-                'SELECT COUNT(*) as total,
-                        SUM(status = "success") as success,
-                        SUM(status = "failed") as failed
-                 FROM request_logs WHERE api_key_id = ?'
-            );
-            $stmt->execute([$apiKeyId]);
-        } else {
-            $stmt = $db->query(
-                'SELECT COUNT(*) as total,
-                        SUM(status = "success") as success,
-                        SUM(status = "failed") as failed
-                 FROM request_logs'
-            );
-        }
-
-        return $stmt->fetch() ?: ['total' => 0, 'success' => 0, 'failed' => 0];
-    }
 }

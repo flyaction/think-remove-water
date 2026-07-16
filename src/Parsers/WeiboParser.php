@@ -59,15 +59,15 @@ class WeiboParser extends BaseParser
             return urldecode((string) $params['fid']);
         }
 
-        if (preg_match('#(?:status|detail)/([^/?#]+)#i', $path, $m)) {
+        if (preg_match('~(?:status|detail)/([^/?#]+)~i', $path, $m)) {
             return $m[1];
         }
 
-        if (preg_match('#(?:tv/show|show)/([^/?#]+)#i', $path, $m)) {
+        if (preg_match('~(?:tv/show|show)/([^/?#]+)~i', $path, $m)) {
             return urldecode($m[1]);
         }
 
-        if (preg_match('#^\d+/([^/?#]+)$#', $path, $m)) {
+        if (preg_match('~^\d+/([^/?#]+)$~', $path, $m)) {
             return $m[1];
         }
 

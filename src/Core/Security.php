@@ -1,6 +1,8 @@
 <?php
 namespace Flyaction\ThinkRemoveWater\Core;
 
+use App\Core\Database;
+
 class Security
 {
     private static ?bool $debug = null;
@@ -12,32 +14,6 @@ class Security
             self::$debug = !empty($config['debug']);
         }
         return self::$debug;
-    }
-
-    /** HTTP 安全响应头 */
-    public static function applySecurityHeaders(): void
-    {
-        if (headers_sent()) {
-            return;
-        }
-        if (defined('APP_MEDIA_STREAM') && APP_MEDIA_STREAM) {
-            return;
-        }
-        header('X-Content-Type-Options: nosniff');
-        header('X-Frame-Options: SAMEORIGIN');
-        header('Referrer-Policy: strict-origin-when-cross-origin');
-        header('Permissions-Policy: geolocation=(), microphone=(), camera=()');
-        header(
-            "Content-Security-Policy: default-src 'self'; "
-            . "script-src 'self' 'unsafe-inline'; "
-            . "style-src 'self' 'unsafe-inline'; "
-            .             "img-src 'self' data: https: http:; "
-            . "media-src 'self' https: http: blob: data:; "
-            . "connect-src 'self'; "
-            . "frame-ancestors 'self'; "
-            . "base-uri 'self'; "
-            . "form-action 'self'"
-        );
     }
 
     public static function startSession(): void
@@ -83,46 +59,6 @@ class Security
             }
         }
         return '0.0.0.0';
-    }
-
-    public static function checkLoginAttempts(string $type, string $identifier, int $maxAttempts = 5, int $windowMinutes = 15): bool
-    {
-        try {
-            $db = Database::getInstance();
-            $stmt = $db->prepare(
-                'SELECT COUNT(*) FROM login_attempts
-                 WHERE type = ? AND identifier = ? AND ip_address = ?
-                   AND success = 0 AND created_at >= DATE_SUB(NOW(), INTERVAL ? MINUTE)'
-            );
-            $stmt->execute([$type, $identifier, self::clientIp(), $windowMinutes]);
-            return (int) $stmt->fetchColumn() < $maxAttempts;
-        } catch (\Throwable $e) {
-            return true;
-        }
-    }
-
-    public static function logLoginAttempt(string $type, string $identifier, bool $success): void
-    {
-        try {
-            $db = Database::getInstance();
-            $stmt = $db->prepare(
-                'INSERT INTO login_attempts (type, identifier, ip_address, success) VALUES (?, ?, ?, ?)'
-            );
-            $stmt->execute([$type, $identifier, self::clientIp(), $success ? 1 : 0]);
-        } catch (\Throwable $e) {
-            // ignore
-        }
-    }
-
-    /** 注册频率限制（按 IP） */
-    public static function checkRegisterRateLimit(int $maxAttempts = 3, int $windowMinutes = 60): bool
-    {
-        return self::checkLoginAttempts('user', '__register__', $maxAttempts, $windowMinutes);
-    }
-
-    public static function logRegisterAttempt(bool $success): void
-    {
-        self::logLoginAttempt('user', '__register__', $success);
     }
 
     /** 蜜罐字段应为空 */
