@@ -7,13 +7,7 @@ class WatermarkService
 {
     public static function parse(string $url, ?int $apiKeyId = null): array
     {
-        $startTime = microtime(true);
-        $platform = 'unknown';
-        $status = 'failed';
-        $error = null;
-        $result = null;
         $fromCache = false;
-
         try {
             $url = \Flyaction\ThinkRemoveWater\Core\Security::validateParseUrl($url);
             $parser = ParserFactory::getParser($url);
