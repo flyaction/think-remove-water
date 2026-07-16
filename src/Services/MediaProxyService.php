@@ -6,11 +6,14 @@ use Flyaction\ThinkRemoveWater\App;
 
 class MediaProxyService
 {
-    private const TTL = 7200;
+    private const TTL = 60;
 
     private static function cacheDir(): string
     {
-        $dir = __DIR__ . '/../../storage/media_tokens';
+        $dir = dirname(__DIR__, 2) . '/runtime/media_tokens';
+
+        var_dump($dir);
+
         if (!is_dir($dir)) {
             mkdir($dir, 0755, true);
         }

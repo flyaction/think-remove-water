@@ -120,7 +120,7 @@ class ParseCacheService
 
     private static function cacheDir(): string
     {
-        $dir = __DIR__ . '/../../storage/parse_cache';
+        $dir = dirname(__DIR__, 2) . '/runtime/parse_cache';
         if (!is_dir($dir)) {
             mkdir($dir, 0755, true);
         }
