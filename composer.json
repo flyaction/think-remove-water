@@ -1,0 +1,17 @@
+{
+    "name": "flyaction/think-remove-water",
+    "description": "去水印鸭",
+    "license": "Apache-2.0",
+    "autoload": {
+        "psr-4": {
+            "Flyaction\\ThinkRemoveWater\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "action",
+            "email": "xingdong1117@126.com"
+        }
+    ],
+    "require": {}
+}
