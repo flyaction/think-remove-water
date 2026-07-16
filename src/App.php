@@ -10,7 +10,7 @@ class App
          */
         return [
             'name'        => '去水印鸭',
-            'version'     => '2.0.0',
+            'version'     => '1.0.0',
             'debug'       => false,
             'timezone'    => 'Asia/Shanghai',
             'api_prefix'  => '/api/v1',
@@ -33,8 +33,6 @@ class App
                 'remember_days'          => 30,
                 'json_max_bytes'         => 65536,
             ],
-            // 已安装后访问 migrate.php 升级数据库时使用，留空则不再要求密钥
-            'migrate_key' => 'qsy_migrate_2026',
         ];
 
     }
